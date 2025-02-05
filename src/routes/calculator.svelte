@@ -1,26 +1,30 @@
 <script>
 	let displayed = $state("");
 	let equalstate = $state(0);
+	let buttons = ["CE","C", "(", ")", "7","8","9","/","4","5","6","x","1","2","3","-","0",".","+","="]
 
 	function appendToDisplay(event) {
-		const numbers = "0123456789";
+		const numbers = "0123456789.";
 		const signs = "+-*/";
-		const allowedKeys = "0123456789+-*/()=";
-
-		if (event instanceof KeyboardEvent && !allowedKeys.includes(event.key) && event.key !== "Backspace" && event.key !== "Enter") {
+		const allowedKeys = "0123456789+-*/()=.";
+		
+		if (event instanceof KeyboardEvent){
+			console.log(event)
 			event.preventDefault();
-		} else if (numbers.includes(event)) {
-			if (equalstate === 1){
-				displayed = event;
-				equalstate = 0;
-			} else {
-				displayed = displayed.toString() + event.toString();
-				equalstate = 0;
-			}
+		}
+
+ 		if (event instanceof KeyboardEvent && allowedKeys.includes(event.key) ||  event.key === "Backspace" || event.key === "Enter") {
+			event = event.key;
+		} else if (event === "x") {
+			event = "*";
+		} 
+
+		if (numbers.includes(event) || event === "(" || event === ")") {
+			displayed = (equalstate === 1 ? event :  displayed.toString() + event.toString());
+			equalstate = 0;
 		} else if (signs.includes(event)) {
 			if (signs.includes(displayed[displayed.length-1])){
-				displayed = displayed.slice(0, -1);
-				displayed = displayed + event;
+				displayed = displayed.slice(0, -1) + event;
 			} else{
 				displayed = displayed + event;
 				equalstate = 0;
@@ -28,43 +32,22 @@
 		} else if (event === "CE"){
 			displayed = "";
 			equalstate = 0;
-		} else if (event === "C"){
-			displayed = displayed.slice(0, -1);
+		} else if (event === "C" || event === "Backspace"){
+			displayed = (equalstate === 1 ? "" :  displayed.slice(0, -1));
 			equalstate = 0;
-		} else if (event === "=" || event.key === "Enter"){
+		} else if (event === "=" || event === "Enter"){
 			displayed = eval(displayed);
 			equalstate = 1;
-		} else {
-			displayed = displayed + event;
-			equalstate = 0;
-		}
+		} 
 		return(displayed)
 	}
 </script>
 
-<div class=box id="outer">
-	<input class=box id="visual" style="color:black" bind:value={displayed} onkeydown={appendToDisplay}>
-	<button class="num" onclick={() => appendToDisplay("CE")}>CE</button>
-	<button class="num" onclick={() => appendToDisplay("C")}>C</button>
-	<button class="num" onclick={() => appendToDisplay("(")}>(</button>
-	<button class="num" onclick={() => appendToDisplay(")")}>)</button>
-	<button class="num" onclick={() => appendToDisplay(7)}>7</button>
-	<button class="num" onclick={() => appendToDisplay(8)}>8</button>
-	<button class="num" onclick={() => appendToDisplay(9)}>9</button>
-	<button class="num" onclick={() => appendToDisplay("/")}>/</button>
-	<button class="num" onclick={() => appendToDisplay(4)}>4</button>
-	<button class="num" onclick={() => appendToDisplay(5)}>5</button>
-	<button class="num" onclick={() => appendToDisplay(6)}>6</button>
-	<button class="num" onclick={() => appendToDisplay("*")}>x</button>
-	<button class="num" onclick={() => appendToDisplay(1)}>1</button>
-	<button class="num" onclick={() => appendToDisplay(2)}>2</button>
-	<button class="num" onclick={() => appendToDisplay(3)}>3</button>
-	<button class="num" onclick={() => appendToDisplay("-")}>-</button>
-	<button class="num" onclick={() => appendToDisplay(0)}>0</button>
-	<button class="num" onclick={() => appendToDisplay(".")} style="font-weight: bold">.</button>
-	<button class="num" onclick={() => appendToDisplay("+")}>+</button>
-	<button class="num" style="background-color:orange"
-		onclick={() => appendToDisplay("=")}>=</button>
+<div class="box outer">
+	<input class="box inputbox" style="color:black" bind:value={displayed} onkeydown={appendToDisplay}>	
+	{#each buttons as button}
+		<button onclick={() => appendToDisplay(button) } style="font-weight: bold" style:background-color={(button === "=" ? 'orange' : 'lightgray')}>{button}</button>
+	{/each}
 </div>
 <style>
 	.box {
@@ -72,7 +55,7 @@
 		border-radius: 0.5em;
 	}
 
-	.num {
+	button {
 		width:50px;
 		height:50px;
 		border: 1px solid black;
@@ -82,7 +65,7 @@
 		border-radius: 6px
 	}
 
-	#outer {
+	.outer {
 		width: 250px;
 		height: 380px;
 		background-color: darkgray;
@@ -90,7 +73,7 @@
 		margin: 100px;
 	}
 
-	#visual {
+	.inputbox {
 		width: 225px;
 		height: 40px;
 		margin-top: 15px;
