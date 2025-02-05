@@ -46,7 +46,7 @@
 <div class="box outer">
 	<input class="box inputbox" style="color:black" bind:value={displayed} onkeydown={appendToDisplay}>	
 	{#each buttons as button}
-		<button onclick={() => appendToDisplay(button) } style="font-weight: bold" style:background-color={(button === "=" ? 'orange' : 'lightgray')}>{button}</button>
+		<button onclick={() => appendToDisplay(button) } style="font-weight: bold" style:background-color={(button === "=" ? 'orange' : 'darkwhite')}>{button}</button>
 	{/each}
 </div>
 <style>
