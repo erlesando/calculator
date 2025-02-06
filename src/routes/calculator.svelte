@@ -86,7 +86,13 @@
 		equalstate = 0;
 				break;
 			case event === "=" || event === "Enter":
-				displayed = eval(displayed);
+				const allowed = "0123456789+-*/()=.";
+				if ([...displayed].every(char => allowed.includes(char))){
+					displayed = eval(displayed);
+				}
+				else {
+					alert("Not allowed input")
+				}
 		equalstate = 1;
 				break;
 		}
