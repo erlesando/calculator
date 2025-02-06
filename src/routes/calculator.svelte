@@ -29,8 +29,37 @@
 		const endPara = str.split(")"); 
 		const numberOfstartPara = startPara.length - 1;
 		const numberOfendPara = endPara.length - 1;
-
 		return numberOfstartPara > numberOfendPara
+	}
+
+	function checkPara(str) {
+		let allowed = true;
+		const startPara = str.split("("); 
+		const endPara = str.split(")"); 
+		const numberOfstartPara = startPara.length - 1;
+		const numberOfendPara = endPara.length - 1;
+		return numberOfstartPara === numberOfendPara;
+	}
+
+	function checkAllowedEval(str) {
+		let allowed = true;
+		let alertMessage = "";
+		const allowedChars = "0123456789+-*/()."
+		const signs = "+-*/"
+		if (!isNaN(displayed)) {
+			alertMessage = "Input do not contain any operators";
+			allowed = false;
+		} else if (!checkPara(str)) {
+			alertMessage = "Input does not contain equal amount of start and end paranthesis";
+			allowed = false;
+		} else if (![...str].every(char => allowedChars.includes(char))) {
+			alertMessage = "Input contains characters that is not allowed";
+			allowed = false;
+		} else if (signs.includes(str[str.length-1])) {
+			alertMessage = "Input ends with an operator";
+			allowed = false;
+		}
+		return [allowed, alertMessage];
 	}
 
 	function appendToDisplay(event) {
@@ -46,8 +75,8 @@
 		}
 
 		switch (true) {
-			case numbers.includes(event):
-				displayed = (equalstate === 1 ? event :  displayed.toString() + event.toString());
+			case numbers.includes(event):	
+				displayed = (equalstate === 1 ? event :  (displayed[displayed.length-1] === ")" ? displayed.toString() : displayed.toString() + event.toString()));
 				equalstate = 0;
 				break;
 			case event === "*" || event === "/":
@@ -78,22 +107,20 @@
 				} 
 				break;
 			case event === "CE":
-		displayed = "";
-		equalstate = 0;
+				displayed = "";
+				equalstate = 0;
 				break;
 			case event === "C" || event === "Backspace":
-		displayed = (equalstate === 1 ? "" :  displayed.slice(0, -1));
-		equalstate = 0;
+				displayed = (equalstate === 1 ? "" :  displayed.slice(0, -1));
+				equalstate = 0;
 				break;
 			case event === "=" || event === "Enter":
-				const allowed = "0123456789+-*/()=.";
-				if ([...displayed].every(char => allowed.includes(char))){
+				if (checkAllowedEval(displayed)[0]) {
 					displayed = eval(displayed);
+					equalstate = 1;
+				} else {
+					alert(checkAllowedEval(displayed)[1]);
 				}
-				else {
-					alert("Not allowed input")
-				}
-		equalstate = 1;
 				break;
 		}
 	return(displayed)
