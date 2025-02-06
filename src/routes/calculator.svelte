@@ -2,45 +2,96 @@
 	let displayed = $state("");
 	let equalstate = $state(0);
 	let buttons = ["CE","C", "(", ")", "7","8","9","/","4","5","6","x","1","2","3","-","0",".","+","="]
+	function checkIfAllowed(key) {
+		const allowedKeys = "0123456789+-*/()=.";
+		const allowedKeys2 = ["Enter", "Backspace", "Shift", "ArrowRight", "ArrowLeft"]
+		if (allowedKeys.includes(key) || allowedKeys2.includes(event.key)) {
+			return key;
+		} else {
+			return alert("Not allowed key")
+		}
+	}
+	function dotAllowed(str) {
+		let allowed = true;
+		const parts = str.split(".");
+		const lastPart = parts[parts.length - 1]; 
+		
+		if (!str.includes(".")){
+			return allowed = true
+		} else {
+			return isNaN(lastPart);
+		}
+	}
+
+	function endParaAllowed(str) {
+		let allowed = true;
+		const startPara = str.split("("); 
+		const endPara = str.split(")"); 
+		const numberOfstartPara = startPara.length - 1;
+		const numberOfendPara = endPara.length - 1;
+
+		return numberOfstartPara > numberOfendPara
+	}
 
 	function appendToDisplay(event) {
-		const numbers = "0123456789.";
-		const signs = "+-*/";
-		const allowedKeys = "0123456789+-*/()=.";
-		
-		if (event instanceof KeyboardEvent){
-			console.log(event)
+		const numbers = "0123456789";
+		if (event instanceof KeyboardEvent) {
 			event.preventDefault();
 		}
-
- 		if (event instanceof KeyboardEvent && allowedKeys.includes(event.key) ||  event.key === "Backspace" || event.key === "Enter") {
+		
+		if (event instanceof KeyboardEvent && checkIfAllowed(event.key)) {
 			event = event.key;
 		} else if (event === "x") {
 			event = "*";
-		} 
+		}
 
-		if (numbers.includes(event) || event === "(" || event === ")") {
-			displayed = (equalstate === 1 ? event :  displayed.toString() + event.toString());
-			equalstate = 0;
-		} else if (signs.includes(event)) {
-			if (signs.includes(displayed[displayed.length-1])){
-				displayed = displayed.slice(0, -1) + event;
-			} else{
-				displayed = displayed + event;
+		switch (true) {
+			case numbers.includes(event):
+				displayed = (equalstate === 1 ? event :  displayed.toString() + event.toString());
 				equalstate = 0;
-			}
-		} else if (event === "CE"){
-			displayed = "";
-			equalstate = 0;
-		} else if (event === "C" || event === "Backspace"){
-			displayed = (equalstate === 1 ? "" :  displayed.slice(0, -1));
-			equalstate = 0;
-		} else if (event === "=" || event === "Enter"){
-			displayed = eval(displayed);
-			equalstate = 1;
-		} 
-		return(displayed)
-	}
+				break;
+			case event === "*" || event === "/":
+				const notAllowed1 = "+-*/.(";
+				displayed = (notAllowed1.includes(displayed[displayed.length-1]) || displayed === "" ?  displayed : displayed + event);
+				equalstate = 0;
+				break;
+			case  event === ".":
+				const notAllowed2 = "+-*/.(";
+				displayed = (equalstate === 1 ? event : (notAllowed2.includes(displayed[displayed.length-1]) || !dotAllowed(displayed) ?  displayed : displayed + event));
+				equalstate = 0;
+				break;
+			case event === "+" || event === "-":
+				const notAllowed3 = "+-*/.";
+				displayed = (notAllowed3.includes(displayed[displayed.length-1]) ?  displayed : displayed + event);
+				equalstate = 0;
+				break;
+			case event === "(":
+				const notAllowed4 = "0123456789.)";
+				displayed = (equalstate === 1 ? event : (notAllowed4.includes(displayed[displayed.length-1]) ? displayed : displayed + event));
+				equalstate = 0;
+				break;
+			case event ===")":
+				const notAllowed5 = "(./*+-";
+				if (equalstate === 0 && endParaAllowed(displayed)) {
+					displayed = (notAllowed5.includes(displayed[displayed.length-1]) || displayed === "" ? displayed : displayed + event)
+					equalstate = 0;
+				} 
+				break;
+			case event === "CE":
+		displayed = "";
+		equalstate = 0;
+				break;
+			case event === "C" || event === "Backspace":
+		displayed = (equalstate === 1 ? "" :  displayed.slice(0, -1));
+		equalstate = 0;
+				break;
+			case event === "=" || event === "Enter":
+				displayed = eval(displayed);
+		equalstate = 1;
+				break;
+		}
+	return(displayed)
+    }
 </script>
 
 <div class="box outer">
