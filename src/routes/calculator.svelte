@@ -45,7 +45,7 @@
 		let allowed = true;
 		let alertMessage = "";
 		const allowedChars = "0123456789+-*/()."
-		const signs = "+-*/"
+		const signs = "+-*/."
 		if (!isNaN(displayed)) {
 			alertMessage = "Input do not contain any operators";
 			allowed = false;
